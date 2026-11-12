@@ -1,0 +1,21 @@
+# Perfil do Chrome com cookies e sessão autenticada (NUNCA subir!)
+perfil_chrome_autosky/
+
+# Arquivo de dados temporário gerado pelo coletor
+dados_autosky.json
+
+# Arquivos e caches padrão do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Configurações locais de IDE e SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
