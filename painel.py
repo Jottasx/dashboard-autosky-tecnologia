@@ -5,7 +5,7 @@ import os
 import html
 
 st.set_page_config(
-    page_title="NOC | Skyone Autosky",
+    page_title="NOC | Monitoramento Nuvem",
     page_icon="🖥️",
     layout="wide",
     initial_sidebar_state="collapsed"
