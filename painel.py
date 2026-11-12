@@ -11,19 +11,19 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS global da página Streamlit
+# CSS otimizado para leitura à distância em tela pequena (Modo TV/NOC)
 st.markdown("""
 <style>
 header[data-testid="stHeader"] { visibility: hidden; height: 0px; }
-.block-container { padding-top: 1.2rem; padding-bottom: 1rem; padding-left: 1.5rem; padding-right: 1.5rem; }
+.block-container { padding-top: 0.9rem; padding-bottom: 0.5rem; padding-left: 1.2rem; padding-right: 1.2rem; }
 div[data-testid="stMetric"] {
     background-color: #161b22;
     border: 1px solid #30363d;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
 }
-div[data-testid="stMetricLabel"] { font-size: 0.85rem; color: #8b949e; }
-div[data-testid="stMetricValue"] { font-size: 1.6rem; font-weight: 700; }
+div[data-testid="stMetricLabel"] { font-size: 1.0rem !important; color: #8b949e; font-weight: 600; }
+div[data-testid="stMetricValue"] { font-size: 2.1rem !important; font-weight: 800; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -53,25 +53,28 @@ def renderizar_tabela_html(df, mostrar_coluna_grupo=True):
         
         if cpu >= 90:
             classe_linha = "row-critico"
-            status_txt = "🔴 Crítico"
+            status_txt = "🔴"
+            status_title = "Crítico (CPU ≥ 90%)"
         elif cpu >= 70:
             classe_linha = "row-atencao"
-            status_txt = "🟡 Atenção"
+            status_txt = "🟡"
+            status_title = "Atenção (CPU 70-89%)"
         else:
             classe_linha = ""
-            status_txt = "🟢 Normal"
+            status_txt = "🟢"
+            status_title = "Normal (CPU < 70%)"
 
         ambiente_seguro = html.escape(str(row["Ambiente"]))
         instancia_segura = html.escape(str(row["Instância"]))
 
         col_grupo_html = ""
         if mostrar_coluna_grupo:
-            badge_cls = "badge-g1" if row["Grupo"] == "Tecnologia" else "badge-g2"
+            badge_cls = "badge-fortes" if row["Grupo"] == "Fortes" else "badge-autosky"
             col_grupo_html = f'<td><span class="{badge_cls}">{row["Grupo"]}</span></td>'
 
         linhas_html.append(
             f'<tr class="{classe_linha}">'
-            f'<td>{status_txt}</td>'
+            f'<td class="status-cell" title="{status_title}">{status_txt}</td>'
             f'<td class="ambiente-cell" title="Instância: {instancia_segura}">{ambiente_seguro}</td>'
             f'{col_grupo_html}'
             f'<td>{html_barra(cpu)}</td>'
@@ -80,34 +83,32 @@ def renderizar_tabela_html(df, mostrar_coluna_grupo=True):
             f'</tr>'
         )
 
-    th_grupo = '<th style="width: 105px;">Grupo</th>' if mostrar_coluna_grupo else ""
-    
-    # Larguras otimizadas para nunca cortar a coluna Disco mesmo no modo Lado a Lado
-    largura_barra = "115px" if mostrar_coluna_grupo else "88px"
-    largura_status = "90px" if mostrar_coluna_grupo else "84px"
+    th_grupo = '<th style="width: 115px;">Grupo</th>' if mostrar_coluna_grupo else ""
+    largura_barra = "135px" if mostrar_coluna_grupo else "105px"
 
     tabela = (
         '<style>'
-        '.noc-wrapper { max-height: 650px; overflow-y: auto; overflow-x: hidden; border: 1px solid #30363d; border-radius: 8px; background-color: #0d1117; }'
-        '.noc-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 0.85rem; color: #c9d1d9; }'
-        '.noc-table th { position: sticky; top: 0; background-color: #161b22; color: #8b949e; text-align: left; padding: 9px 8px; border-bottom: 1px solid #30363d; font-weight: 600; z-index: 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }'
-        '.noc-table td { padding: 7px 8px; border-bottom: 1px solid #21262d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }'
-        '.noc-table tr:hover { background-color: rgba(255, 255, 255, 0.05); }'
-        '.row-critico { background-color: rgba(248, 81, 73, 0.18) !important; }'
-        '.row-atencao { background-color: rgba(210, 153, 34, 0.14) !important; }'
-        '.ambiente-cell { cursor: help; font-weight: 500; color: #f0f6fc; }'
-        '.badge-g1 { background-color: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid rgba(56, 139, 253, 0.4); padding: 2px 8px; border-radius: 12px; font-size: 0.76rem; font-weight: 600; }'
-        '.badge-g2 { background-color: rgba(163, 113, 247, 0.15); color: #bc8cff; border: 1px solid rgba(163, 113, 247, 0.4); padding: 2px 8px; border-radius: 12px; font-size: 0.76rem; font-weight: 600; }'
-        '.bar-container { display: flex; align-items: center; gap: 5px; width: 100%; }'
-        '.bar-bg { flex-grow: 1; height: 6px; background-color: #21262d; border-radius: 4px; overflow: hidden; min-width: 24px; }'
-        '.bar-fill { height: 100%; border-radius: 4px; }'
-        '.bar-val { width: 32px; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; font-size: 0.80rem; font-weight: 600; }'
+        '.noc-wrapper { max-height: 700px; overflow-y: auto; overflow-x: hidden; border: 1px solid #30363d; border-radius: 8px; background-color: #0d1117; }'
+        '.noc-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #c9d1d9; }'
+        '.noc-table th { position: sticky; top: 0; background-color: #161b22; color: #adbac7; text-align: left; padding: 11px 10px; border-bottom: 2px solid #30363d; font-size: 0.98rem; font-weight: 700; z-index: 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }'
+        '.noc-table td { padding: 10px 10px; border-bottom: 1px solid #21262d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }'
+        '.noc-table tr:hover { background-color: rgba(255, 255, 255, 0.06); }'
+        '.row-critico { background-color: rgba(248, 81, 73, 0.22) !important; }'
+        '.row-atencao { background-color: rgba(210, 153, 34, 0.16) !important; }'
+        '.status-cell { text-align: center !important; padding: 10px 2px !important; text-overflow: clip !important; font-size: 1.05rem; cursor: help; }'
+        '.ambiente-cell { cursor: help; font-size: 1.08rem; font-weight: 600; color: #ffffff; letter-spacing: 0.2px; }'
+        '.badge-fortes { background-color: rgba(56, 139, 253, 0.18); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.45); padding: 3px 10px; border-radius: 12px; font-size: 0.88rem; font-weight: 700; }'
+        '.badge-autosky { background-color: rgba(163, 113, 247, 0.18); color: #d2a8ff; border: 1px solid rgba(163, 113, 247, 0.45); padding: 3px 10px; border-radius: 12px; font-size: 0.88rem; font-weight: 700; }'
+        '.bar-container { display: flex; align-items: center; gap: 6px; width: 100%; }'
+        '.bar-bg { flex-grow: 1; height: 9px; background-color: #21262d; border-radius: 5px; overflow: hidden; min-width: 20px; }'
+        '.bar-fill { height: 100%; border-radius: 5px; }'
+        '.bar-val { width: 44px; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; font-size: 1.02rem; font-weight: 700; color: #f0f6fc; }'
         '</style>'
         '<div class="noc-wrapper">'
         '<table class="noc-table">'
         '<thead><tr>'
-        f'<th style="width: {largura_status};">Status</th>'
-        '<th>Ambiente <span style="font-weight:normal; font-size:0.72rem;">(hover = instância)</span></th>'
+        '<th style="width: 48px; text-align:center; padding: 11px 2px;"></th>'
+        '<th>Ambiente</th>'
         f'{th_grupo}'
         f'<th style="width: {largura_barra};">CPU</th>'
         f'<th style="width: {largura_barra};">Memória</th>'
@@ -120,15 +121,15 @@ def renderizar_tabela_html(df, mostrar_coluna_grupo=True):
     st.markdown(tabela, unsafe_allow_html=True)
 
 # Cabeçalho com Controles de Visualização e Filtro
-col_titulo, col_modo, col_filtro = st.columns([2.2, 1.4, 1.4])
+col_titulo, col_modo, col_filtro = st.columns([2.1, 1.5, 1.4])
 
 with col_titulo:
-    st.markdown("### 🖥️ Monitoramento — Skyone Autosky")
+    st.markdown("## 🖥️ Monitoramento — Autosky")
 
 with col_modo:
     modo_exibicao = st.radio(
         "Modo de visualização",
-        ["📋 Painel Único (Todos)", "Columns Lado a Lado"],
+        ["📋 Painel Único", "Columns Lado a Lado"],
         horizontal=True,
         label_visibility="collapsed"
     )
@@ -161,14 +162,16 @@ def renderizar_painel_dados(modo, filtro):
     g1_lista = dados.get("grupo_1", [])
     g2_lista = dados.get("grupo_2", [])
 
+    # Grupos invertidos conforme solicitado:
+    # Grupo 1 -> AutoSky | Grupo 2 -> Fortes
     for item in g1_lista:
-        item["Grupo"] = "Tecnologia"
-    for item in g2_lista:
         item["Grupo"] = "AutoSky"
+    for item in g2_lista:
+        item["Grupo"] = "Fortes"
 
     area_conteudo = st.empty()
     with area_conteudo.container():
-        if modo == "📋 Painel Único (Todos)":
+        if modo == "📋 Painel Único":
             df_total = pd.DataFrame(g1_lista + g2_lista)
             if df_total.empty:
                 st.info("Aguardando dados dos grupos...")
@@ -177,7 +180,7 @@ def renderizar_painel_dados(modo, filtro):
                 
                 m1, m2, m3, m4 = st.columns(4)
                 m1.metric("Total Geral", len(df_total))
-                m2.metric("Tecnologia / AutoSky", f"{len(g1_lista)} / {len(g2_lista)}")
+                m2.metric("AutoSky / Fortes", f"{len(g1_lista)} / {len(g2_lista)}")
                 m3.metric("Atenção (70-89%)", len(df_total[(df_total["CPU"] >= 70) & (df_total["CPU"] < 90)]))
                 m4.metric("Críticas (≥ 90%)", len(df_total[df_total["CPU"] >= 90]))
 
@@ -190,11 +193,11 @@ def renderizar_painel_dados(modo, filtro):
             col_esq, col_dir = st.columns(2, gap="small")
 
             for coluna, titulo, lista in [
-                (col_esq, "🏢 Tecnologia", g1_lista),
-                (col_dir, "☁️ AutoSky", g2_lista)
+                (col_esq, "☁️ AutoSky", g1_lista),
+                (col_dir, "🏢 Fortes", g2_lista)
             ]:
                 with coluna:
-                    st.markdown(f"#### {titulo}")
+                    st.markdown(f"### {titulo}")
                     df_g = pd.DataFrame(lista)
                     if df_g.empty:
                         st.info("Aguardando dados...")

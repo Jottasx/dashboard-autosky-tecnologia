@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
 
 # ==========================================
@@ -13,13 +13,16 @@ URL_GRUPO_1 = "https://admin01.autosky.cloud/partners/6f678788-3c94-47ac-99b6-4b
 URL_GRUPO_2 = "https://admin01.autosky.cloud/partners/19db221b-ce85-4a52-ba3b-15e710f2007a/instances"
 INTERVALO_SEGUNDOS = 60
 
-pasta_perfil = os.path.join(os.getcwd(), "perfil_chrome_autosky")
+# Pasta dedicada para salvar a sessão/cookies do Edge
+pasta_perfil = os.path.join(os.getcwd(), "perfil_edge_autosky")
 
-chrome_options = Options()
-chrome_options.add_argument(f"--user-data-dir={pasta_perfil}")
-chrome_options.add_argument("--start-maximized")
+edge_options = Options()
+edge_options.add_argument(f"--user-data-dir={pasta_perfil}")
+edge_options.add_argument("--start-maximized")
+edge_options.add_argument("--disable-session-crashed-bubble")
+edge_options.add_argument("--no-first-run")
 
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Edge(options=edge_options)
 
 def extrair_numero(texto):
     try:
@@ -49,10 +52,10 @@ def extrair_tabela():
             })
     return servidores
 
-# 1. Abre a tela de login e aguarda autenticação + MFA manual
+# 1. Abre a tela de login no Edge e aguarda autenticação + MFA manual
 driver.get(URL_GRUPO_1)
 print("\n" + "="*55)
-print("AÇÃO NECESSÁRIA:")
+print("AÇÃO NECESSÁRIA (MICROSOFT EDGE):")
 print("1. Faça login e valide o Google Authenticator no navegador.")
 print("2. Assim que entrar no painel, volte aqui.")
 input(">>> Pressione ENTER para iniciar em segundo plano... ")
@@ -67,9 +70,9 @@ driver.execute_script(f"window.open('{URL_GRUPO_2}', '_blank');")
 abas = driver.window_handles
 time.sleep(5)
 
-# 3. MINIMIZA O CHROME para nunca mais pular na frente da sua tela
+# 3. Minimiza o Edge para rodar em segundo plano
 driver.minimize_window()
-print("Chrome minimizado! Monitoramento rodando em segundo plano (Ctrl+C para parar).\n")
+print("Edge minimizado! Monitoramento rodando em segundo plano (Ctrl+C para parar).\n")
 
 while True:
     try:
@@ -90,7 +93,7 @@ while True:
         with open("dados_autosky.json", "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
 
-        print(f"[{payload['atualizado_em']}] Atualizado: {len(dados_g1)} instâncias (G1) | {len(dados_g2)} instâncias (G2)")
+        print(f"[{payload['atualizado_em']}] Atualizado: {len(dados_g1)} instâncias (AutoSky) | {len(dados_g2)} instâncias (Fortes)")
 
     except Exception as e:
         print(f"Erro durante a coleta: {e}")

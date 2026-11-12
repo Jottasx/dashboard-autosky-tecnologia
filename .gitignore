@@ -1,5 +1,6 @@
 # Perfil do Chrome com cookies e sessão autenticada (NUNCA subir!)
 perfil_chrome_autosky/
+perfil_edge_autosky/
 
 # Arquivo de dados temporário gerado pelo coletor
 dados_autosky.json
