@@ -2,7 +2,9 @@
 chcp 65001 > nul
 title NOC Skyone Autosky - Inicializador
 
-:: Garante que o script rode dentro da pasta onde o .bat está salvo
+set REPO_URL=https://github.com/Jottasx/dashboard-autosky-tecnologia.git
+
+:: Trabalha diretamente na pasta onde este .bat está salvo
 cd /d "%~dp0"
 
 set PRECISOU_INSTALAR=0
@@ -42,9 +44,21 @@ if %PRECISOU_INSTALAR% equ 1 (
 
 echo.
 echo ==================================================
-echo 1. Atualizando codigo do GitHub...
+echo 1. Baixando / Atualizando projeto do GitHub...
 echo ==================================================
-git pull
+if not exist ".git" (
+    echo Vinculando pasta atual ao repositorio do GitHub...
+    git init
+    git remote add origin "%REPO_URL%"
+    git fetch origin
+    git checkout -B main
+    git reset --hard origin/main
+    git branch --set-upstream-to=origin/main main
+) else (
+    echo Atualizando arquivos existentes...
+    git fetch origin
+    git reset --hard origin/main
+)
 
 echo.
 echo ==================================================
@@ -56,17 +70,14 @@ echo.
 echo ==================================================
 echo 3. Iniciando Coletor e Painel Visual...
 echo ==================================================
-:: Inicia o coletor em uma janela separada
 start "Coletor Autosky" cmd /k "python coletor.py"
 
-:: Aguarda 3 segundos e inicia o Streamlit em outra janela
 timeout /t 3 /nobreak > nul
 start "Painel Streamlit" cmd /k "python -m streamlit run painel.py --server.headless true"
 
-:: Aguarda 4 segundos para o servidor subir e abre o painel no Edge
 timeout /t 4 /nobreak > nul
 start msedge "http://localhost:8501"
 
 echo.
-echo Faca o login na janela do Edge que abriu.
+echo Tudo iniciado! Faca o login + MFA na janela do Edge que abriu.
 timeout /t 5 > nul

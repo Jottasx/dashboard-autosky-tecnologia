@@ -13,15 +13,24 @@ URL_GRUPO_1 = "https://admin01.autosky.cloud/partners/6f678788-3c94-47ac-99b6-4b
 URL_GRUPO_2 = "https://admin01.autosky.cloud/partners/19db221b-ce85-4a52-ba3b-15e710f2007a/instances"
 INTERVALO_SEGUNDOS = 60
 
-pasta_perfil = os.path.join(os.getcwd(), "perfil_edge_autosky")
+print("Iniciando o Microsoft Edge para coleta...")
 
 edge_options = Options()
-edge_options.add_argument(f"--user-data-dir={pasta_perfil}")
 edge_options.add_argument("--start-maximized")
 edge_options.add_argument("--disable-session-crashed-bubble")
 edge_options.add_argument("--no-first-run")
+# Abre em perfil temporário limpo (evita travamentos de perfil bloqueado)
+edge_options.add_argument("--inprivate")
 
-driver = webdriver.Edge(options=edge_options)
+try:
+    driver = webdriver.Edge(options=edge_options)
+except Exception as e:
+    print("\n" + "!"*55)
+    print("ERRO AO ABRIR O MICROSOFT EDGE:")
+    print(e)
+    print("!"*55)
+    input("\nPressione ENTER para fechar...")
+    exit(1)
 
 def extrair_numero(texto):
     try:
@@ -55,14 +64,12 @@ def extrair_tabela():
 driver.get(URL_GRUPO_1)
 print("\n" + "="*55)
 print("Aguardando autenticação no Microsoft Edge...")
-print("(Se pedir login/MFA, basta preencher no navegador. Não precisa apertar ENTER)")
+print("(Preencha e-mail, senha e Google Authenticator no Edge)")
 print("="*55 + "\n")
 
 while True:
     url_atual = driver.current_url.lower()
-    # Detecta quando o portal já redirecionou para dentro do sistema autenticado
     if "admin01.autosky.cloud/environments" in url_atual or "admin01.autosky.cloud/partners/" in url_atual:
-        # Confirma que a página já renderizou o corpo/tabela após o redirecionamento
         if len(driver.find_elements(By.TAG_NAME, "table")) > 0:
             print("Login detectado automaticamente!")
             break
