@@ -124,7 +124,7 @@ def renderizar_tabela_html(df, mostrar_coluna_grupo=True):
 col_titulo, col_modo, col_filtro = st.columns([2.1, 1.5, 1.4])
 
 with col_titulo:
-    st.markdown("## 🖥️ Monitoramento — Autosky")
+    st.markdown("## 🖥️ Monitoramento Nuvem")
 
 with col_modo:
     modo_exibicao = st.radio(
