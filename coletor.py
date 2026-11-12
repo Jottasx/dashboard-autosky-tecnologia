@@ -13,7 +13,6 @@ URL_GRUPO_1 = "https://admin01.autosky.cloud/partners/6f678788-3c94-47ac-99b6-4b
 URL_GRUPO_2 = "https://admin01.autosky.cloud/partners/19db221b-ce85-4a52-ba3b-15e710f2007a/instances"
 INTERVALO_SEGUNDOS = 60
 
-# Pasta dedicada para salvar a sessão/cookies do Edge
 pasta_perfil = os.path.join(os.getcwd(), "perfil_edge_autosky")
 
 edge_options = Options()
@@ -52,14 +51,22 @@ def extrair_tabela():
             })
     return servidores
 
-# 1. Abre a tela de login no Edge e aguarda autenticação + MFA manual
+# 1. Abre o portal e aguarda automaticamente o fim do login + MFA
 driver.get(URL_GRUPO_1)
 print("\n" + "="*55)
-print("AÇÃO NECESSÁRIA (MICROSOFT EDGE):")
-print("1. Faça login e valide o Google Authenticator no navegador.")
-print("2. Assim que entrar no painel, volte aqui.")
-input(">>> Pressione ENTER para iniciar em segundo plano... ")
+print("Aguardando autenticação no Microsoft Edge...")
+print("(Se pedir login/MFA, basta preencher no navegador. Não precisa apertar ENTER)")
 print("="*55 + "\n")
+
+while True:
+    url_atual = driver.current_url.lower()
+    # Detecta quando o portal já redirecionou para dentro do sistema autenticado
+    if "admin01.autosky.cloud/environments" in url_atual or "admin01.autosky.cloud/partners/" in url_atual:
+        # Confirma que a página já renderizou o corpo/tabela após o redirecionamento
+        if len(driver.find_elements(By.TAG_NAME, "table")) > 0:
+            print("Login detectado automaticamente!")
+            break
+    time.sleep(1.5)
 
 # 2. Carrega as duas abas
 print("Carregando abas das duas contas...")
