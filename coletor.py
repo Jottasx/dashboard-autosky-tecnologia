@@ -19,8 +19,11 @@ edge_options = Options()
 edge_options.add_argument("--start-maximized")
 edge_options.add_argument("--disable-session-crashed-bubble")
 edge_options.add_argument("--no-first-run")
-# Abre em perfil temporário limpo (evita travamentos de perfil bloqueado)
 edge_options.add_argument("--inprivate")
+# Impede que o navegador reduza a prioridade ou pause abas em segundo plano
+edge_options.add_argument("--disable-background-timer-throttling")
+edge_options.add_argument("--disable-backgrounding-occluded-windows")
+edge_options.add_argument("--disable-renderer-backgrounding")
 
 try:
     driver = webdriver.Edge(options=edge_options)
@@ -84,9 +87,10 @@ driver.execute_script(f"window.open('{URL_GRUPO_2}', '_blank');")
 abas = driver.window_handles
 time.sleep(5)
 
-# 3. Minimiza o Edge para rodar em segundo plano
+# 3. Move a janela para fora da tela e minimiza (impede roubo de foco no Windows)
+driver.set_window_position(-32000, -32000)
 driver.minimize_window()
-print("Edge minimizado! Monitoramento rodando em segundo plano (Ctrl+C para parar).\n")
+print("Edge ocultado! Monitoramento rodando sem roubar foco (Ctrl+C para parar).\n")
 
 while True:
     try:
@@ -107,7 +111,7 @@ while True:
         with open("dados_autosky.json", "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
 
-        print(f"[{payload['atualizado_em']}] Atualizado: {len(dados_g1)} instâncias (AutoSky) | {len(dados_g2)} instâncias (Fortes)")
+        print(f"[{payload['atualizado_em']}] Atualizado: {len(dados_g1)} instâncias (Fortes) | {len(dados_g2)} instâncias (AutoSky)")
 
     except Exception as e:
         print(f"Erro durante a coleta: {e}")

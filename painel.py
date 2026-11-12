@@ -124,7 +124,7 @@ def renderizar_tabela_html(df, mostrar_coluna_grupo=True):
 col_titulo, col_modo, col_filtro = st.columns([2.1, 1.5, 1.4])
 
 with col_titulo:
-    st.markdown("## 🖥️ Monitoramento Nuvem")
+    st.markdown("## 🖥️ Monitoramento — Autosky")
 
 with col_modo:
     modo_exibicao = st.radio(
@@ -162,12 +162,11 @@ def renderizar_painel_dados(modo, filtro):
     g1_lista = dados.get("grupo_1", [])
     g2_lista = dados.get("grupo_2", [])
 
-    # Grupos invertidos conforme solicitado:
-    # Grupo 1 -> AutoSky | Grupo 2 -> Fortes
+    # Grupo 1 -> Fortes | Grupo 2 -> AutoSky
     for item in g1_lista:
-        item["Grupo"] = "AutoSky"
-    for item in g2_lista:
         item["Grupo"] = "Fortes"
+    for item in g2_lista:
+        item["Grupo"] = "AutoSky"
 
     area_conteudo = st.empty()
     with area_conteudo.container():
@@ -180,7 +179,7 @@ def renderizar_painel_dados(modo, filtro):
                 
                 m1, m2, m3, m4 = st.columns(4)
                 m1.metric("Total Geral", len(df_total))
-                m2.metric("AutoSky / Fortes", f"{len(g1_lista)} / {len(g2_lista)}")
+                m2.metric("Fortes / AutoSky", f"{len(g1_lista)} / {len(g2_lista)}")
                 m3.metric("Atenção (70-89%)", len(df_total[(df_total["CPU"] >= 70) & (df_total["CPU"] < 90)]))
                 m4.metric("Críticas (≥ 90%)", len(df_total[df_total["CPU"] >= 90]))
 
@@ -193,8 +192,8 @@ def renderizar_painel_dados(modo, filtro):
             col_esq, col_dir = st.columns(2, gap="small")
 
             for coluna, titulo, lista in [
-                (col_esq, "☁️ AutoSky", g1_lista),
-                (col_dir, "🏢 Fortes", g2_lista)
+                (col_esq, "🏢 Fortes", g1_lista),
+                (col_dir, "☁️ AutoSky", g2_lista)
             ]:
                 with coluna:
                     st.markdown(f"### {titulo}")
